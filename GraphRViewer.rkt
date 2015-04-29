@@ -52,6 +52,7 @@
 (require plot)
 
 (require "FramesGRV.rkt")
+(plot-new-window? #t)
 ;-------------------------------------------------
 ;-------------MAIN------------------------------
 ; Show the frame by calling its show method
