@@ -10,8 +10,9 @@
 (require racket/gui)
 (require "AllContClass.rkt")
 (require "GlobsGRV.rkt")
-(require "FunctionStylesGRV.rkt")
+;(require "FunctionStylesGRV.rkt")
 
+(plot-new-window? #t)
 
 ;instantiates a class to holdall content
 (define newclass (allcont ""))
@@ -21,6 +22,32 @@
 ;updates the trig var
 (define (updatefv vart)((newclass 'updatefv) vart))
 (define (updatef varf)((newclass 'updatef) varf))
+(define (updatexmin varmin) ((newclass 'updatexmin) varmin))
+(define (updatexmax varmax) ((newclass 'updatexmax) varmax))
+
+;allows me to just call the graph and it should parameterize things
+(define interptAll
+  (cond((eq? (newclass 'arg-3d?) #t)
+        (outputplot3d 
+         (funcwraper3d 
+          (combine_proc 
+           (interTok (newclass 'printfuncvar)) 
+           (interTok (newclass 'printfunc))
+           (string->number (newclass 'printxt)))
+          (newclass 'printxmin)
+          (newclass 'printxmax)
+          0)))
+        ((eq? (newclass 'arg-3d?) #f)
+         (outputplot2d 
+          (funcwraper2d
+           (combine_proc 
+            (interTok (newclass 'printfuncvar))
+            (interTok (newclass 'printfunc)) 
+            (string->number (newclass 'printtxt)))
+           (newclass 'printxmin)
+           (newclass 'printxmax))))
+        ))
+
 ;-----------------METHODS-------------------------
 
 
@@ -36,8 +63,8 @@
 (define function-input-frame 
   (new frame%
        [label "Function options"]
-       [width 250]
-       [height 250]
+       [width 300]
+       [height 300]
        [style (list 'no-resize-border
                     'fullscreen-button)]
        [border 10]))
@@ -53,10 +80,75 @@
 ;-------------FRAMES----------------------------
 
 ;-------------DIALOGUE BOX----------------------
+;panels for order of frames presented
 ;*Dbox for default
 (define nullPanel (new panel% [parent function-input-frame]
                        [style '(deleted)]))
-;*Dbox for default
+;*Dbox for default^
+
+
+
+;Dbox for frame(*************************************
+(define diaPanel (new horizontal-panel% [parent frame]
+                      [alignment '(center center)]))
+(define diaPanel2 (new horizontal-panel% [parent frame]
+                      [alignment '(center center)]))
+(define diaPanel3 (new horizontal-panel% [parent frame]
+                       [alignment '(center center)]))
+;Dbox for frame**************************************
+
+
+
+;Dbox for function-frame*****************************
+(define funcPanel (new horizontal-panel% 
+                       [parent function-input-frame]
+                       [alignment '(left top)]
+                       [style '(deleted)]))
+;NOT USED^-------------------------------------------
+(define funcPanelHeader (new horizontal-panel%
+                       [parent function-input-frame]
+                       [alignment '(center top)]
+                       ))
+(define funcPanelHead (new horizontal-panel%
+                           [parent function-input-frame]
+                           [alignment '(center top)]))
+(define funcPanelH2 (new horizontal-panel%
+                         [parent function-input-frame]
+                         [alignment '(center top)]))
+
+;for xmin and max values,
+(define spacer1 (new vertical-panel%
+                     [parent funcPanelH2]
+                     [alignment '(left top)]))
+(define funcPanelXmin (new vertical-panel%
+                           [parent funcPanelH2]
+                           [alignment '(left top)]))
+(define spacer2 (new vertical-panel%
+                     [parent funcPanelH2]
+                     [alignment '(left top)]))
+(define funcPanelXmax (new vertical-panel%
+                           [parent funcPanelH2]
+                           [alignment '(right top)]))
+(define spacer3 (new vertical-panel%
+                     [parent funcPanelH2]
+                     [alignment '(left top)]))
+;for xmin and max values,^^
+
+
+(define funcPanel2 (new vertical-panel%
+                        [parent function-input-frame]
+                        [alignment '(center top)]))
+
+(define funcPanel3 (new vertical-panel%
+                        [parent function-input-frame]
+                        [alignment '(center top)]))
+
+;for messages
+(define funcPanel4 (new vertical-panel%
+                        [parent function-input-frame]
+                        [alignment '(center top)]))
+;Dbox for function-frame*****************************
+
 
 ;Dbox for function-style-frame
 ;Panels for the syles frame
@@ -77,35 +169,6 @@
 (define stlyePanel3 (new horizontal-panel% [parent function-style-frame]
                          [alignment '(center center)]))
 
-;Dbox for frame(*************************************
-(define diaPanel (new horizontal-panel% [parent frame]
-                      [alignment '(center center)]))
-(define diaPanel2 (new horizontal-panel% [parent frame]
-                      [alignment '(center center)]))
-(define diaPanel3 (new horizontal-panel% [parent frame]
-                       [alignment '(center center)]))
-;Dbox for frame**************************************
-
-
-;Dbox for function-frame*****************************
-(define funcPanel (new vertical-panel% 
-                       [parent function-input-frame]
-                       [alignment '(left top)]))
-(define funcPanel2 (new vertical-panel%
-                        [parent function-input-frame]
-                        [alignment '(center top)]))
-(define funcPanel2t (new vertical-panel%
-                         [parent funcPanel2]
-                         [style '(deleted)]
-                         [alignment '(center top)]))
-(define funcPanel2l (new vertical-panel%
-                         [parent funcPanel2]
-                         [style '(deleted)]
-                         [alignment '(center top)]))
-(define funcPanel3 (new vertical-panel%
-                        [parent function-input-frame]
-                        [alignment '(right top)]))
-;Dbox for function-frame*****************************
 
 ;-------------DIALOGUE BOX----------------------
 
@@ -125,10 +188,23 @@
 ;-------------RADIO BOX-------------------------
 
 ;-------------TEXTBOX---------------------------
-(define ntxtf (new text-field%
-                   [label "Enter integer to transform"]
-                   [parent funcPanel3]))
 
+(define ntxtf (new text-field%
+                   [label "Enter and integer value"]
+                   [parent funcPanel3]
+                   [style '(single vertical-label)]))
+
+;Xmin and Xmax
+(define xmintxt (new text-field%
+                     [label "Xmin:"]
+                     [parent funcPanelXmin]
+                     [style '(single vertical-label)]))
+(define xmaxtxt (new text-field%
+                     [label "Xmax:"]
+                     [parent funcPanelXmax]
+                     [style '(single vertical-label)]))
+;Xmin and Xmax
+;--------------TEXTBOXES-------------------------
 ;--------------COMBO-----------------------------
 ;This will be a personal modified class when i can figure that out
 ;idea inherited from http://lists.racket-lang.org/users/archive/2012-October/054246.html
@@ -158,26 +234,29 @@
                     [callback (lambda (text-field event)
                                 (cond((not(equal? (send funcbox get-value) "trig"))
                                       (updatefv "")
-                                      (updatef (send funcbox get-value))
-                                      (send funcPanel2 change-children (lambda(child) (list funcPanel2l))))
+                                      (updatef (send funcbox get-value)))
                                      (else
-                                      (updatef (send funcbox get-value))
-                                      (send funcPanel2 change-children (lambda(child) (list funcPanel2t))))))]))
+                                      (updatef (send funcbox get-value)))))]))
 
-;the combo box for the trig values if its a trig function
-;until i can figure out how to hide things 
-(define trigbox (new combo-field% 
-                     [parent funcPanel2t]
-                     [label "Select trig function"]
-                     [choices trigbox-choices]
-                     [callback (lambda (text-field event)
-                                 (updatefv (send trigbox get-value)))]))
 
-;bound to funcPanel2l to display the linear function options
-(define linbox (new combo-field%
-                    [parent funcPanel2l]
-                    [label "Select linear function"]
-                    [choices linear-choices]))
+;temp value for demonstration
+(define allOptions (new combo-field%
+                        [parent funcPanelHeader]
+                        [label "Select function to graph"]
+                        [choices all-choices]
+                        [style '(vertical-label)]
+                        [callback (lambda (text-field event)
+                                    (updatefv (send allOptions get-value)))]))
+
+
+(define allTransforms (new combo-field%
+                                [parent funcPanelHead]
+                                [label "Select a Transformation"]
+                                [choices all-transforms]
+                                [style '(vertical-label)]
+                                [callback (lambda (text-field event)
+                                            (updatef (send allTransforms get-value)))]))
+
 
 ;bound to the stylePanel to display all plots that will have variable styles
 ;(define allplotstyles (new combo-field%
@@ -207,7 +286,7 @@
 
 
 ;button that pulls from  textbox                                                                                
-(define get-eq (new button% [parent funcPanel2] 
+(define get-eq (new button% [parent funcPanel3] 
      [label "Get Equation"]
      [callback (lambda (button event)
                  (updatetxt (send ntxtf get-value))
@@ -215,27 +294,50 @@
                        (string-append "function type: " (newclass 'printfunc)))
                  (if(not(eq? "none" (newclass 'printtrig)))
                          (send alldata2 set-label 
-                               (string-append "function: " (newclass 'printtrig)))
+                               (string-append "function: " (newclass 'printfuncvar)))
                          (send alldata2 set-label " "))
                  (send alldata3 set-label 
                        (string-append "equation val: " (newclass 'printtxt)))
+                 (updatexmin (send xmintxt get-value))
+                 (updatexmax (send xmaxtxt get-value))
+                 (send alldata4 set-label
+                       (string-append "xmin: " (number->string (newclass 'printxmin))
+                                      "\nxmax: " (number->string (newclass 'printxmax))))
                  (cond((eq? (newclass 'arg-3d?) #t)
-                       (outputplot3d (lambda(x) ((interTok (newclass 'printfuncvar)) x (string->number (newclass 'printtxt))))))
-                      ((eq? (newclss 'arg-3d?) #f)
-                       (outputplot2d (lambda(x)((interTok (newclass 'printfuncvar)) x (string->number (newclass 'printtxt))))))))]))
+                       (outputplot3d 
+                        (funcwraper3d 
+                         (combine_proc 
+                          (interTok (newclass 'printfuncvar)) 
+                          (interTok (newclass 'printfunc))
+                          (string->number (newclass 'printxt)))
+                         (newclass 'printxmin)
+                         (newclass 'printxmax)
+                         0)))
+                      ((eq? (newclass 'arg-3d?) #f)
+                       (outputplot2d 
+                        (funcwraper2d
+                         (combine_proc 
+                          (interTok (newclass 'printfuncvar))
+                          (interTok (newclass 'printfunc)) 
+                          (string->number (newclass 'printtxt)))
+                         (newclass 'printxmin)
+                         (newclass 'printxmax))))))]))
 ;-------------BUTTONS---------------------------
 
                                                                                 
-;--------------MESSAGES------------------------
-(define alldata (new message% [parent diaPanel3]
+;--------------MESSAGES that change------------------------
+(define alldata (new message% [parent funcPanel4]
                      [label " "]
                      [auto-resize #t]))
-(define alldata2 (new message% [parent diaPanel3]
+(define alldata2 (new message% [parent funcPanel4]
                      [label " "]
                      [auto-resize #t]))
-(define alldata3 (new message% [parent diaPanel3]
+(define alldata3 (new message% [parent funcPanel4]
                      [label " "]
                      [auto-resize #t]))
+(define alldata4 (new message% [parent funcPanel4]
+                      [label " "]
+                      [auto-resize #t]))
 ;-------------MESSAGES--------------------------
 
 

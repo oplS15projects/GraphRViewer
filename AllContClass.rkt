@@ -12,17 +12,23 @@
 
 #lang racket
 (require "GlobsGRV.rkt")
+(require plot)
+(plot-new-window? #t)
 
 ;****WRAPPERS TO DYNAMICALLY ADD*********
 ;--------------------------------------------------
 (define (funcwraper2d func x y) (function func x y))
 (define (funcwraper3d func x y z) (function func x y z))
-(define (outputplot3d func x y z)
-  (plot-3d (funcwraper3d func x y z)))
-(define (outputplot2d func x y)
-  (plot (funcwraper2d func x y)))
-;----------------------------------------------------
+(define outputplot3d
+  (lambda (x) (plot3d x)))
+(define outputplot2d
+  (lambda(x) plot x))
 
+
+;composes 1 with 2
+(define (combine_proc proc arg1 arg2 )
+  (lambda(x) (proc (arg1 x) arg2)))
+;----------------------------------------------------
 
 ;basic class structure to hold information
 ;---------CLASS-TO-HOLD-ALL-CONTENT-------------------
@@ -36,7 +42,9 @@
        (linearopt-2d coords-2d)
        (linearopt-3d coords-3d)
        (trigopt fbc)
-       (arg-3d #f))
+       (arg-3d #f)
+       (xmin xmindef)
+       (xmax xmaxdef))
     (lambda(mess)
       (cond((eq? mess 'printall) (list funcvar txt func))
            ((eq? mess 'printfunc) func)
@@ -49,23 +57,19 @@
            ((eq? mess 'printlinearopt-3d) linearopt-3d)
            ((eq? mess 'printtrigopt) trigopt)
            ((eq? mess 'arg-3d?) arg-3d)
-           ((eq? mess 'updatetfv)
+           ((eq? mess 'printxmin) xmin)
+           ((eq? mess 'printxmax) xmax)
+           ((eq? mess 'updatefv)
             (lambda (newfuncvar)
-              (cond((eq? funcvar '())
-                    (set! funcvar "")
-                    (set! listfuncvar (string->list "")))
-                   (else(set! funcvar newfuncvar)
-                        (set! listfuncvar (string->list newfuncvar))))))
+              (set! funcvar newfuncvar)
+              (set! listfuncvar (string->list newfuncvar))))
            ((eq? mess 'updatef)
             (lambda (newfunc)
-              (cond((eq? newfunc '())
-                    (set! func "")
-                    (set! listfunc (string->list "")))
-                   (else(set! func newfunc)
-                        (set! listfunc (string->list newfunc))))))           
+              (set! func newfunc)
+              (set! listfunc (string->list newfunc))))
            ((eq? mess 'updatetxt) 
             (lambda(newtxt)
-              (set! txt (string->number newtxt))
+              (set! txt newtxt)
               (set! listtxt (string->list newtxt))))
            
            ((eq? mess 'updatelinopt2d)
@@ -82,6 +86,16 @@
               (if(equal? arg 1)
                  (set! arg-3d #t)
                  (set! arg-3d #f))))
+           ((eq? mess 'updatexmin)
+            (lambda(x)
+              (if(eq? x "")
+                 (set! xmin xmindef)
+                 (set! xmin (string->number x)))))
+           ((eq? mess 'updatexmax)
+            (lambda(x)
+              (if(eq? x "")
+                 (set! xmax xmaxdef)
+                 (set! xmax (string->number x)))))
            
            
            ))))
