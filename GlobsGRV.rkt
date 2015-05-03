@@ -37,6 +37,7 @@
        ((equal? token "sin") (lambda(x) (sin x)))
        ((equal? token "cos") (lambda(x) (cos x)))
        ((equal? token "tan") (lambda(x) (tan x)))
+       ((equal? token "integer") (lambda(x) x))
        )))
 ;TOKENS--------------------------------------------
 ;GLOBALS
