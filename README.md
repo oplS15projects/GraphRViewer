@@ -25,7 +25,7 @@ We have also added features that allow the user to change the style of their gra
 * Rackets gui library
 * Plot library
 
-#Favorit Lines of Code
+#Favorite Lines of Code
 ####Jonathan
 
 ```scheme
@@ -40,6 +40,12 @@ We have also added features that allow the user to change the style of their gra
 This is my favorite procedure throughout the entire project. It essentially updates the choices of a combo-box
 or any menu derived choices. This allows me to dynamically change choices to prevent to many boxes.
 
+#Incomplete Features
+
+* Only graphs 2d equations
+* Intended to have styles and colors for graphs
+* Instead of parsing a text box, user selects function parameters
+* 
 #How to Download and Run
 
 * Head over to my latest release to get all of the code.
