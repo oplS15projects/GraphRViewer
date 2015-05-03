@@ -97,8 +97,8 @@
 ;-------------FRAMES----------------------------
 ; Make a frame by instantiating the frame% class
 (define frame (new frame% [label "GraphRViewer"]
-                   [width 350]
-                   [height 350]
+                   [width 150]
+                   [height 150]
                    [style (list 'no-resize-border 
                              'fullscreen-button)]
                    [border 10]))
@@ -216,9 +216,10 @@
 ;-------------DIALOGUE BOX----------------------
 
 ;-------------RADIO BOX-------------------------
+;previously had 3d option but no longer aiming for that funcitonality.
 (define bool-3d (new radio-box%
                      [label "Dimensions"]
-                     [choices '("2d" "3d")]
+                     [choices '("2d")]
                      [parent diaPanel2] ;funcpanel
                      [callback 
                       (lambda (radio-box event)
@@ -321,6 +322,7 @@
                                    (send function-input-frame show #t))]))
 
 ;button that allows a user to change styles
+;prav never did nanything for this, and its too much for just me at this point.
 (define functionstyles (new button%
                             [parent diaPanel]
                             [label "Change Styles"]
@@ -330,7 +332,7 @@
 
 ;button that pulls from  textbox                                                                                
 (define get-eq (new button% [parent funcPanel3] 
-     [label "Get Equation"]
+     [label "Get Graph"]
      [callback (lambda (button event)
                  (updatetxt (send ntxtf get-value))
                  (send alldata set-label 
@@ -346,7 +348,10 @@
                  (send alldata4 set-label
                        (string-append "xmin: " (number->string (newclass 'printxmin))
                                       "\nxmax: " (number->string (newclass 'printxmax))))
-                 (cond((eq? (newclass 'arg-3d?) #t)
+                 (cond((and(eq? (newclass 'printtxt) "0")
+                           (eq? (newclass 'printfunc) "/"))
+                       (send alldata5 set-label "Cannot divide by zero, please fix parameters"))
+                      ((eq? (newclass 'arg-3d?) #t)
                        (plot3d 
                         (funcwraper3d 
                          (combine_proc
@@ -379,6 +384,9 @@
                      [label " "]
                      [auto-resize #t]))
 (define alldata4 (new message% [parent funcPanel4]
+                      [label " "]
+                      [auto-resize #t]))
+(define alldata5 (new message% [parent funcPanel4]
                       [label " "]
                       [auto-resize #t]))
 ;-------------MESSAGES--------------------------
